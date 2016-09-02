@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    
+    <style>
+        .world div { word-break: break-all; }
+        .cell { border:1px solid red; display: inline-block; padding:5px; }
+    </style>
+    
+    <script src="env.js"></script>
+    <script src="cell.js"></script>
+    <script>
+        var env = new Environment({});
+        var start = 4;
+        var world = [];
+        
+        env.startTimeFlow();
+        
+        onmessage = function(e){
+            if( e.data[0] == 'updated' )
+            {
+                //console.log(env);
+                time.innerHTML = 'Time: ' + env.time;
+                temp.innerHTML = 'Temperature: ' + env.temperature + '°';
+                solid.innerHTML = 'Solids: ' + env.solid;
+                liquid.innerHTML = 'Liquids: ' + env.liquid;
+                
+            } else {
+                cells.innerHTML = '';
+                for( var i = 0; i < world.length; i++ ){
+                    
+                    var name = world[i].name;
+                    var size = world[i].size;
+                    var eng = world[i].energy;
+                    var met = world[i].metabolicRate;
+                    var cell = document.createElement('div');
+                    
+                    if( met != 'x_X' ){
+                        
+                        cell.setAttribute('class','cell');
+                        cell.innerHTML = '<div>'+name+'</div>';
+                        cell.innerHTML += '<div>S: '+size+'</div>';
+                        cell.innerHTML += '<div>E: '+eng+'</div>';
+                        cell.innerHTML += '<div>M: '+met+'</div>';
+
+                        cells.appendChild(cell);
+                    }
+                }
+            }
+        }
+        
+        for( var i = 0; i < start; i++ ){
+            world.push( new Cell(env, 'cell-' + i, world) );
+        }
+        
+    </script>
+</head>
+<body>
+   
+    <div class="world">
+        
+        <div id="time"></div>
+        <div id="temp"></div>
+        <div id="cells"></div>
+        <div id="solid"></div>
+        <div id="liquid"></div> 
+        
+    </div>
+
+</body>
+</html>
