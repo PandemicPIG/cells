@@ -6,7 +6,9 @@
     
     <style>
         .world div { word-break: break-all; }
-        .cell { border:1px solid red; display: inline-block; padding:5px; }
+        .cell { border:1px solid red; display: inline-block; padding:5px; border-radius: 15px; margin:1px; }
+        .cell.small { background: rgba(100,255,100,0.3); }
+        .cell.big { background: rgba(255,100,100,0.3); }
     </style>
     
     <script src="env.js"></script>
@@ -35,15 +37,22 @@
                     var size = world[i].size;
                     var eng = world[i].energy;
                     var met = world[i].metabolicRate;
+                    var liq = world[i].liquid;
+                    var sol = world[i].solid;
                     var cell = document.createElement('div');
+                    
+                    var s_type = size > 20 ? 'big' : 'small';
                     
                     if( met != 'x_X' ){
                         
-                        cell.setAttribute('class','cell');
-                        cell.innerHTML = '<div>'+name+'</div>';
-                        cell.innerHTML += '<div>S: '+size+'</div>';
-                        cell.innerHTML += '<div>E: '+eng+'</div>';
-                        cell.innerHTML += '<div>M: '+met+'</div>';
+                        
+                        cell.setAttribute('class','cell ' + s_type);
+                        //cell.innerHTML = '<div>'+name+'</div>';
+                        cell.innerHTML += '<div>age: '+size+'</div>';
+                        cell.innerHTML += '<div>eng: '+eng+'</div>';
+                        cell.innerHTML += '<div>met: '+met+'</div>';
+                        cell.innerHTML += '<div>liq: '+liq+'</div>';
+                        cell.innerHTML += '<div>sol: '+sol+'</div>';
 
                         cells.appendChild(cell);
                     }

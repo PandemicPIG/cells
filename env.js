@@ -1,6 +1,6 @@
-const GOOD_FATE = 25;
-const AWESOME_FATE = 5;
-const INSANE = 3;
+const GOOD_FATE = 60;
+const AWESOME_FATE = 10;
+const INSANE = 30;
 
 class Environment {
     constructor({
@@ -60,8 +60,9 @@ class Environment {
         var newSolid;
 
         //5% chance for an 'o'
-        if( fate < this.fate(GOOD_FATE) ) newSolid = 'o';
-
+        if( fate < this.fate(GOOD_FATE) ){
+            newSolid = 'o';
+        }
         //3% chance for an 'x'
         else if( fate < this.fate(AWESOME_FATE) ) newSolid = 'x';
 
@@ -70,6 +71,7 @@ class Environment {
 
         //add to solids
         if( newSolid ) this.solid.push(newSolid);
+        this.solid.push('o'); //food for little ones all the time :)
 
         return this
     }
@@ -77,7 +79,7 @@ class Environment {
     newLiquid(){
 
         //just adds water to max :)
-        this.liquid = ['w','w','w','w','w'];
+        if( this.liquid.length < 30 ) this.liquid.splice(0, 0, 'w', 'w', 'w');
 
         return this
     }

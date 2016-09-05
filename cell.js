@@ -9,53 +9,69 @@ class Cell {
         this.birth = this.environment.time;
         this.metabolicAge = 0;
         this.metabolicRate = 1;
-        this.liquid = [];
+        this.liquid = ['w'];
         this.solid = [];
         this.energy = '|||||';
         this.size = 1;
-        this.maxCap = 1 + this.size*2;
-        this.startLifeFlow();
+        this.maxCap = 3;
         this.offsprings = 0;
+        
+        this.startLifeFlow();
     }
     
     stepLifeFlow(){
         setTimeout(
-            () =>  {
+            () => {
                 //get moment data
                 this.metabolicRate = (this.environment.temperature * (30 + this.energy.length + this.characteristic)/1000);
                 this.metabolicAge++;
-
-                if( this.metabolicAge > (10 * this.size) ) this.size++;
-                if( this.size > 2 && this.size < 20 ) this.divide();
-                //console.log('metabolic rate: ' + this.metabolicRate, "\n"+'energy :' + this.energy);
-                // do stuf while alive
-
+                
+                this.maxCap = 2 + Math.ceil(this.size/25);
+                
+                    // do stuf while alive
+                
                 //use energy for living
                 this.energy = this.energy.slice(0, -1);
-
+                
+                //grow big :)
+                if( this.metabolicAge > (10 * this.size) ) this.size++;
+                
                 //eliminate waste
                 this.poo();
+                
+                //try to digest food
+                this.absorbe('w').burn(false);
 
-                //get hungry
+                //get hungry and eat
                 if( this.energy.length < 7 ){
-                    if( this.size < 20 ) this.absorbe('w').ingest('o').burn(false);
+                    if( this.size < 20 ) this.absorbe('w').ingest('o');
                     else this.absorbe('w').ingest('m').burn(true);
                 }
 
-                //if enought energy live one more day
+                /*
+                    the order of the previous 3 is set this way 
+                    so in first turn will eat, in second will digest
+                    and in third will elimitat waste
+                */
+                
+                //try to make new offsprings
+                if( this.size > 2 && this.size < 20 ) this.divide();
+                
+                //if enought energy live one more turn
                 if( this.energy.length > 0 ){
                     postMessage([this.name],'*');
                     this.startLifeFlow();
                 }
                 else this.hibernate();
-            }, Math.floor(Math.random() * 100)
+                
+            }, Math.floor(Math.random() * 100) //small natural discrepance in dayly action
         );
     }
     
     startLifeFlow(){
         setTimeout(
             () => this.stepLifeFlow(),
-            2000 - this.environment.temperature * (30 + this.energy.length + this.characteristic)
+            2000 - this.metabolicRate * 1000
         );
     }
     
@@ -86,6 +102,8 @@ class Cell {
     }
     
     burn(waste){
+        //young ~ w + o => m + energy
+        //old ~ w + m => energy
         var io = this.solid.indexOf('o');
         if( waste ) io = this.solid.indexOf('m');
         var lq = this.liquid.indexOf('w');
@@ -102,7 +120,7 @@ class Cell {
     
     poo(){
         var ip = this.solid.indexOf('m');
-        if( ip >= 0 ){
+        if( ip >= 0 && this.size < 20 ){
             this.solid.splice(ip, 1);
             this.environment.solid.push('m');
             this.poo();
@@ -124,6 +142,8 @@ class Cell {
             this.metabolicRate = 'x_X';
             postMessage([this.name],'*');
         }
+        
+        return this
     }
     
     divide(){
@@ -135,5 +155,7 @@ class Cell {
             this.offsprings++;
             this.world.push( new Cell(this.environment, this.name + '_' + this.offsprings, this.world) );
         }
+        
+        return this
     }
 }
