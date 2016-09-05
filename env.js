@@ -79,7 +79,7 @@ class Environment {
     newLiquid(){
 
         //just adds water to max :)
-        if( this.liquid.length < 30 ) this.liquid.splice(0, 0, 'w', 'w', 'w');
+        if( this.liquid.length < 30 ) this.liquid.splice(0, 0, 'w', 'w', 'w', 'w', 'w');
 
         return this
     }
