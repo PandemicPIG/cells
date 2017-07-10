@@ -2,20 +2,33 @@
 class Commons {
 	
 	constructor() {
-		this.debug = true
+		this.debug = false
 		this.log_history = []
 	}
 	
 	transfer(from, to) {
 		to.unshift(from.pop())
+		
+		return this
+	}
+	
+	logNext() {
+		this.log_next = true
+		
+		return this
 	}
 	
 	log(...arg) {
 		this.log_history.push(arg.map(elm => {
 			let set = [new Date(), elm]
-			this.debug && console.log(set[0] + ' - log: ' + set[1])
+			if( this.debug || this.log_next ) {
+				console.log(set[0] + ' - log: ' + set[1])
+				this.log_next = false
+			}
 			return set
 		}))
+		
+		return this
 	}
 }
 
@@ -38,10 +51,6 @@ class Bubble extends Commons {
 		this.trans_x = state.trans_x || 0
 		this.trans_y = state.trans_y || 0
 		this.population = []
-		
-		this.end_time_condition = () => { 
-			return false
-		}
 		
 		this.log('start new world: ' + this.name)
 
@@ -71,6 +80,10 @@ class Bubble extends Commons {
 		return this
 	}
 	
+	endTimeCondition() { 
+		return false
+	}
+	
 	timePass() {
 		this.world_moment++
 		this.log('w-moment: ' + this.world_moment)
@@ -91,14 +104,16 @@ class Bubble extends Commons {
     }
 	
 	setTemperatureRate() {
-		this.temperature_rate = 2 / (this.max_temperature - this.min_temperature) * (this.temperature - this.min_temperature)
-		this.log('temp-rate:'+this.temperature_rate)
+		let min_rate = 0.8
+		let max_rate = 1.2
+		
+		this.temperature_rate = (this.temperature * (max_rate - min_rate) - this.min_temperature * max_rate + this.max_temperature * min_rate) / (this.max_temperature - this.min_temperature)
 		
 		return this
 	}
 	
 	endTimeCheck() {
-		if( this.end_time_condition() ) {
+		if( this.endTimeCondition() ) {
 			clearInterval(this.time_flow)
 		}
 		
@@ -121,7 +136,7 @@ class Bubble extends Commons {
 	logWorld() {
 		this.log('world state:')
 		this.world_map.map(row => {
-			this.log( 
+			this.log(
 				row.map(elm => {
 					return elm.inhabitants.length ? 'o' : elm.resource
 				}).join()
@@ -205,6 +220,8 @@ class Eill extends Commons {
 		this.name = this.stats.name ? this.stats.name : this.randID
 		this.bias = parseInt(Math.random() * 100  + 950)
 		
+		this.decision = new Decision(this)
+		
 		this.spawn()
 	}
 	
@@ -225,7 +242,7 @@ class Eill extends Commons {
 	}
 	
 	setLocation() {
-		if (this.stats.spawn_location) {
+		if( this.stats.spawn_location ) {
 			this.location = this.world.selectAreaByLocation(
 				this.stats.spawn_location[0],
 				this.stats.spawn_location[1])
@@ -263,6 +280,7 @@ class Eill extends Commons {
 	
 	getMetabolicInterval() {
 		let local_variation = 1 + this.location.temp_variation / (this.world.max_temperature - this.world.min_temperature)
+		this.log(local_variation + '|' + this.bias + '|' + this.metabolic_rate + '|' + this.world.temperature_rate)
 		return this.bias * this.metabolic_rate * this.world.temperature_rate * local_variation
 	}
 	
@@ -276,13 +294,20 @@ class Eill extends Commons {
 	incrementActivity() {
 		this.incremental_age++
 		this.log('age: ' + this.incremental_age + '|eng:' + this.energy_level + '|cycle:' + this.getMetabolicInterval())
-		//
+		this.activity()
+
+		return this
+	}
+	
+	activity() {
 		this.energy_level--
+		this.decision.takeDecision()
+		
 		return this
 	}
 	
 	lifeCycle() {
-		if(this.alive && this.energy_level > 0) {
+		if( this.alive && this.energy_level > 0 ) {
 			this.incrementActivity()
 			
 			setTimeout(() => {
@@ -299,6 +324,27 @@ class Eill extends Commons {
 	endLife() {
 		this.log('end of ' + this.name)
 		return this
+	}
+}
+
+class Decision {
+	construnctor(entity) {
+		this.entity = entity
+		this.SDO = [] //stored memory
+	}
+	
+	takeDecision() {
+		//analyse situation vs stored situations, decisions and outcomes (SDOs) and take decision
+		//store situation, decision and outcome (SDO)
+		
+		/*
+			build individual network for each instantiation of the class
+			train after each decision
+			network structure will mutate from generation to generation
+			higher network complexity will require more energy
+			
+			interaction between individuals can transfer stored memory on SDOs
+		*/
 	}
 }
 
