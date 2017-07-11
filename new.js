@@ -327,23 +327,53 @@ class Eill extends Commons {
 	}
 }
 
-class Decision {
-	construnctor(entity) {
+class Decision extends Commons {
+	constructor(entity) {
+		super()
+		
 		this.entity = entity
 		this.SDO = [] //stored memory
 	}
 	
 	takeDecision() {
+		let input_data = [
+			this.entity.proximityResource.n === 'x' ? 1 : 0,
+			this.entity.proximityResource.e === 'x' ? 1 : 0,
+			this.entity.proximityResource.s === 'x' ? 1 : 0,
+			this.entity.proximityResource.w === 'x' ? 1 : 0,
+			this.entity.proximityResource.here === 'x' ? 1 : 0,
+			this.entity.energy_level,
+			this.entity.location.position[0],
+			this.entity.location.position[1],
+			this.entity.location.temp_variation
+		]
+		
+		/*
+			output decision
+				0 - stay and eat
+				1 - move north
+				2 - move east
+				3 - move south
+				4 - move west
+		*/
+		
+		console.log(input_data)
+		process.exit()
 		//analyse situation vs stored situations, decisions and outcomes (SDOs) and take decision
 		//store situation, decision and outcome (SDO)
 		
 		/*
 			build individual network for each instantiation of the class
 			train after each decision
+				pattern:
+					- input situation and outcome => output decision
+					
 			network structure will mutate from generation to generation
 			higher network complexity will require more energy
 			
 			interaction between individuals can transfer stored memory on SDOs
+				big network (size to be defined) individuals drop and update existent memory blocks
+					others can access the memory blocks
 		*/
 	}
 }
